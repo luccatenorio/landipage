@@ -1,0 +1,30 @@
+name: Deploy Landing Page to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  web-deploy:
+    name: ðŸŽ‰ Deploy to Hostinger
+    runs-on: ubuntu-latest
+    steps:
+      - name: ðŸšš Baixar cÃ³digo do repositÃ³rio
+        uses: actions/checkout@v4
+
+      - name: ðŸ“‚ Sincronizar arquivos com Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github*
+            **/.github*/**
+            README.md
+            drive-dream-sales-vip/**
