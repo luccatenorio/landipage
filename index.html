@@ -1462,7 +1462,7 @@
             As melhores ofertas somem em minutos. Quem está dentro, compra primeiro.
           </div>
 
-          <a href="https://chat.whatsapp.com/JrykAzKvCm8JiRI22LKgiZ" target="_blank" class="btn-dds-gold" id="btn-whatsapp-hero" data-location="Hero" onclick="trackWhatsAppClick(event, 'Hero')">
+          <a href="https://bxrhrkhqyftptztnonkg.supabase.co/functions/v1/lp-click-tracker?redirect=1" target="_blank" class="btn-dds-gold" id="btn-whatsapp-hero" data-location="Hero" onclick="trackWhatsAppClick(event, 'Hero')">
             QUERO ENTRAR NO GRUPO VIP
           </a>
 
@@ -1784,7 +1784,7 @@
 
       <!-- Button Directly Below Deals Slider -->
       <div class="proximos-btn-wrap">
-        <a href="https://chat.whatsapp.com/JrykAzKvCm8JiRI22LKgiZ" target="_blank" class="btn-dds-gold" id="btn-whatsapp-ofertas" data-location="Ofertas Slider" onclick="trackWhatsAppClick(event, 'Ofertas Slider')">
+        <a href="https://bxrhrkhqyftptztnonkg.supabase.co/functions/v1/lp-click-tracker?redirect=1" target="_blank" class="btn-dds-gold" id="btn-whatsapp-ofertas" data-location="Ofertas Slider" onclick="trackWhatsAppClick(event, 'Ofertas Slider')">
           QUERO RECEBER AS PRÓXIMOS OFERTAS
         </a>
       </div>
@@ -1965,7 +1965,7 @@
         Mas só quem está dentro vai ver. Entre agora, é gratuito.
       </p>
 
-      <a href="https://chat.whatsapp.com/JrykAzKvCm8JiRI22LKgiZ" target="_blank" class="btn-entrar-grupo" id="btn-whatsapp-final" data-location="Rodapé Final" onclick="trackWhatsAppClick(event, 'Rodapé Final')">
+      <a href="https://bxrhrkhqyftptztnonkg.supabase.co/functions/v1/lp-click-tracker?redirect=1" target="_blank" class="btn-entrar-grupo" id="btn-whatsapp-final" data-location="Rodapé Final" onclick="trackWhatsAppClick(event, 'Rodapé Final')">
         ENTRAR NO GRUPO, É GRATUITO
       </a>
 
@@ -2009,7 +2009,7 @@
         </p>
       </div>
 
-      <a href="https://chat.whatsapp.com/JrykAzKvCm8JiRI22LKgiZ" target="_blank" class="btn-dds-gold btn-modal-cta" id="btn-whatsapp-modal" data-location="Modal Oferta" onclick="trackWhatsAppClick(event, 'Modal Oferta')">
+      <a href="https://bxrhrkhqyftptztnonkg.supabase.co/functions/v1/lp-click-tracker?redirect=1" target="_blank" class="btn-dds-gold btn-modal-cta" id="btn-whatsapp-modal" data-location="Modal Oferta" onclick="trackWhatsAppClick(event, 'Modal Oferta')">
         VER ESTA OFERTA NO WHATSAPP
       </a>
 
@@ -2084,6 +2084,28 @@
 
     // Captura e persiste sinais de atribuicao Meta Ads (fbclid, _fbc, _fbp e UTMs) logo na entrada da LP
     const DDS_CLICK_TRACKER_URL = 'https://bxrhrkhqyftptztnonkg.supabase.co/functions/v1/lp-click-tracker';
+    window.DDS_ACTIVE_GROUP_URL = DDS_CLICK_TRACKER_URL + '?redirect=1';
+
+    function applyDynamicWhatsAppHref(url) {
+      if (!url || typeof url !== 'string' || !url.startsWith('http')) return;
+      window.DDS_ACTIVE_GROUP_URL = url;
+      document.querySelectorAll('[id^="btn-whatsapp-"]').forEach(function (el) {
+        el.setAttribute('href', url);
+      });
+    }
+
+    (function syncActiveWhatsAppGroup() {
+      try {
+        fetch(DDS_CLICK_TRACKER_URL, { method: 'GET', cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data && data.grupo_url) {
+              applyDynamicWhatsAppHref(data.grupo_url);
+            }
+          })
+          .catch(function () {});
+      } catch (_) {}
+    })();
 
     function getCookieValue(name) {
       const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'));
@@ -2128,9 +2150,10 @@
     captureAttributionSignals();
 
     function trackWhatsAppClick(event, location) {
-      const destinationUrl = (event && event.currentTarget && event.currentTarget.href)
-        ? event.currentTarget.href
-        : 'https://chat.whatsapp.com/JrykAzKvCm8JiRI22LKgiZ';
+      const destinationUrl = window.DDS_ACTIVE_GROUP_URL ||
+        ((event && event.currentTarget && event.currentTarget.href)
+          ? event.currentTarget.href
+          : (DDS_CLICK_TRACKER_URL + '?redirect=1'));
 
       const eventParams = {
         content_name: 'Comunidade VIP WhatsApp',
